@@ -3,11 +3,11 @@ from django.contrib.auth.models import User
 
 
 def create_user(
-        username: str,
-        password: str,
-        email: str = None,
-        first_name: str = "",
-        last_name: str = ""
+    username: str,
+    password: str,
+    email: str = None,
+    first_name: str = "",
+    last_name: str = ""
 ) -> User:
     user = get_user_model().objects.create_user(
         username=username,

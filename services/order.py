@@ -1,39 +1,37 @@
+from datetime import datetime
+
+from django.contrib.auth import get_user_model
 from django.db import transaction
-from django.utils import timezone
 from django.db.models import QuerySet
-from db.models import Order, Ticket, User
+
+from db.models import Order, Ticket
+
+User = get_user_model()
 
 
 @transaction.atomic
 def create_order(
-        tickets: list[dict],
-        username: str,
-        date: str = None
-) -> Order:
+    tickets: list[dict],
+    username: User,
+    date: datetime = None,
+) -> None:
     user = User.objects.get(username=username)
+    order = Order.objects.create(user=user)
+    if date:
+        order.created_at = date
+        order.save()
 
-    # Розбиття довгого рядка
-    order = Order.objects.create(
-        user=user,
-        created_at=(
-            timezone.datetime.fromisoformat(date)
-            if date
-            else timezone.now()
-        )
-    )
-
-    for ticket_data in tickets:
+    for ticket in tickets:
         Ticket.objects.create(
-            row=ticket_data["row"],
-            seat=ticket_data["seat"],
-            movie_session_id=ticket_data["movie_session"],
-            order=order
+            row=ticket.get("row"),
+            seat=ticket.get("seat"),
+            movie_session_id=ticket.get("movie_session"),
+            order=order,
         )
-    return order
 
 
-def get_orders(username: str = None) -> QuerySet[Order]:
-    queryset = Order.objects.all()
+def get_orders(username: str = None) -> QuerySet:
+    orders = Order.objects.all()
     if username:
-        queryset = queryset.filter(user__username=username)
-    return queryset
+        orders = orders.filter(user__username=username)
+    return orders
