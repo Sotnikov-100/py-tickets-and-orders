@@ -11,9 +11,15 @@ def create_order(
         date: str = None
 ) -> Order:
     user = User.objects.get(username=username)
+
+    # Розбиття довгого рядка
     order = Order.objects.create(
         user=user,
-        created_at=timezone.datetime.fromisoformat(date) if date else timezone.now()
+        created_at=(
+            timezone.datetime.fromisoformat(date)
+            if date
+            else timezone.now()
+        )
     )
 
     for ticket_data in tickets:
