@@ -1,4 +1,5 @@
 from django.db import transaction
+from django.utils import timezone
 from django.db.models import QuerySet
 from db.models import Order, Ticket, User
 
@@ -10,7 +11,10 @@ def create_order(
         date: str = None
 ) -> Order:
     user = User.objects.get(username=username)
-    order = Order.objects.create(user=user, created_at=date if date else None)
+    order = Order.objects.create(
+        user=user,
+        created_at=timezone.datetime.fromisoformat(date) if date else timezone.now()
+    )
 
     for ticket_data in tickets:
         Ticket.objects.create(
